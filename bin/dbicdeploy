@@ -1,0 +1,62 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+use Pod::Usage;
+use DBICx::Deploy;
+
+my (@lib, @tmp);
+BEGIN {
+    foreach my $arg (@ARGV){
+        if(my ($path) = ($arg =~ /-I(.+)/)){
+            push @lib, $path;
+        }
+        else {
+            push @tmp, $arg;
+        }
+    }
+}
+
+use lib @lib;
+
+pod2usage("$0: Need the schema and the dsn to deploy to") if @tmp != 2;
+
+my ($schema, $dsn) = @tmp;
+DBICx::Deploy->deploy($schema => $dsn);
+exit 0;
+
+__END__
+
+=head1 NAME
+
+dbicdeploy - deploy a DBIx::Class schema to a database
+
+=head1 SYNOPSIS
+
+    dbicdeploy schema DSN
+
+Example
+
+    dbicdeploy -Ilib MyApp::Schema DBI:SQLite:root/database
+
+=over 4
+
+=item -I
+
+C<lib> is a directory to add to the search path for the schema.  You
+can have 0 or more of these, just like C<perl>.
+
+=item Schema
+
+C<MyApp::Schema> is the L<DBIx::Class::Schema|DBIx::Class::Schema>
+subclass that you want to deploy.
+
+=item DSN
+
+C<DBI:SQLite:root/database> is the DBI DSN that you want to connect
+to.  I use SQLite here, but you can use C<mysql>, C<Pg>, or whatever.
+
+=back
+
+=cut
